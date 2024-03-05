@@ -1,0 +1,330 @@
+#include <iostream>
+#include <cstddef>
+
+class Vector {
+private:
+    double* elements; 
+    size_t size;
+    int state; // код ошибки
+
+public:
+    // Конструкторы
+    Vector() {
+        elements = new double[1];
+        size = 1;
+        elements[0] = 0.0;
+        state = 0;
+    }
+
+    Vector(size_t s) {
+        elements = new double[s];
+        size = s;
+        for (size_t i = 0; i < size; ++i) {
+            elements[i] = i;
+        }
+        state = 0;
+    }
+
+    Vector(size_t s, double value) {
+        elements = new double[s];
+        size = s;
+        for (size_t i = 0; i < size; ++i) {
+            elements[i] = value;
+        }
+        state = 0;
+    }
+
+    // Деструктор
+    ~Vector() {
+        delete[] elements;
+    }
+
+    // Функции установки и получения элемента массива
+    void setElement(size_t index, double value = 0.0) {
+        if (index < size) {
+            elements[index] = value;
+            state = 0;
+        } else {
+            state = 1; // выход за пределы массива
+        }
+    }
+
+    double getElement(size_t index) const {
+        if (index < size) {
+            state = 0;
+            return elements[index];
+        } else {
+            state = 1; // выход за пределы массива
+            return 0.0; // возвращаем значение по умолчанию
+        }
+    }
+
+    // Функция печати
+    void print() const {
+        for (size_t i = 0; i < size; ++i) {
+            std::cout << elements[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Функции арифметических операций
+    Vector operator+(const Vector& other) const {
+        Vector result(size);
+        for (size_t i = 0; i < size; ++i) {
+            result.elements[i] = elements[i] + other.elements[i];
+        }
+        return result;
+    }
+
+    Vector operator*(double scalar) const {
+        Vector result(size);
+        for (size_t i = 0; i < size; ++i) {
+            result.elements[i] = elements[i] * scalar;
+        }
+        return result;
+    }
+
+    Vector operator-(const Vector& other) const {
+        Vector result(size);
+        for (size_t i = 0; i < size; ++i) {
+            result.elements[i] = elements[i] - other.elements[i];
+        }
+        return result;
+    }
+
+    // Методы сравнения
+    bool operator>(const Vector& other) const {
+        // реализация оператора больше
+    }
+
+    bool operator<(const Vector& other) const {
+        // реализация оператора меньше
+    }
+
+    bool operator==(const Vector& other) const {
+        // реализация оператора равно
+    }
+
+    // Статическая переменная для подсчета числа объектов данного типа
+    static int count;
+
+    // Метод для подсчета числа объектов данного типа
+    static int getCount() {
+        return count;
+    }
+};
+
+// Инициализация статической переменной
+int Vector::count = 0;
+
+int main() {
+    Vector v1; // использование конструктора без параметров
+    Vector v2(5); // использование конструктора с одним параметром
+    Vector v3(3, 2.5); // использование конструктора с двумя параметрами
+
+    v1.print(); // печать элементов вектора v1
+    v2.print(); // печать элементов вектора v2
+    v3.print(); // печать элементов вектора v3
+
+    // Примеры использования функций
+
+
+
+
+
+
+
+
+
+#include <iostream>
+#include <cstddef>
+
+class Matrix {
+private:
+    double *data;
+    size_t rows;
+    size_t cols;
+    bool errorState;
+
+public:
+    // Конструкторы и деструктор
+    Matrix() : data(nullptr), rows(0), cols(0), errorState(false) {}
+    Matrix(size_t rowsOrCols) : rows(rowsOrCols), cols(rowsOrCols), errorState(false) {
+        data = new double[rows * cols]();
+    }
+    Matrix(size_t rows, size_t cols) : rows(rows), cols(cols), errorState(false) {
+        data = new double[rows * cols]();
+    }
+    ~Matrix() {
+        delete[] data;
+    }
+
+    // Методы доступа
+    double getValue(size_t i, size_t j) const {
+        if (i >= rows || j >= cols) {
+            errorState = true;
+            return 0; // Можно выбрать другое значение по умолчанию для ошибочного доступа
+        }
+        return data[i * cols + j];
+    }
+
+    double* getAddress(size_t i, size_t j) {
+        if (i >= rows || j >= cols) {
+            errorState = true;
+            return nullptr;
+        }
+        return &data[i * cols + j];
+    }
+
+    // Функция печати
+    void print() const {
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+                std::cout << getValue(i, j) << ' ';
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    // Функции сложения и вычитания
+    Matrix add(const Matrix& other) const {
+        if (rows != other.rows || cols != other.cols) {
+            errorState = true;
+            return Matrix();
+        }
+
+        Matrix result(rows, cols);
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+                *result.getAddress(i, j) = getValue(i, j) + other.getValue(i, j);
+            }
+        }
+        return result;
+    }
+
+    Matrix subtract(const Matrix& other) const {
+        if (rows != other.rows || cols != other.cols) {
+            errorState = true;
+            return Matrix();
+        }
+
+        Matrix result(rows, cols);
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+                *result.getAddress(i, j) = getValue(i, j) - other.getValue(i, j);
+            }
+        }
+        return result;
+    }
+
+    // Умножение матрицы на матрицу
+    Matrix multiply(const Matrix& other) const {
+        if (cols != other.rows) {
+            errorState = true;
+            return Matrix();
+        }
+
+        Matrix result(rows, other.cols);
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < other.cols; ++j) {
+                double sum = 0;
+                for (size_t k = 0; k < cols; ++k) {
+                    sum += getValue(i, k) * other.getValue(k, j);
+                }
+                *result.getAddress(i, j) = sum;
+            }
+        }
+        return result;
+    }
+
+    // Умножение матрицы на число
+    Matrix scalarMultiply(double scalar) const {
+        Matrix result(rows, cols);
+        for (size_t i = 0; i < rows; ++i) {
+            for (size_t j = 0; j < cols; ++j) {
+                *result.getAddress(i, j) = getValue(i, j) * scalar;
+            }
+        }
+        return result;
+    }
+
+    bool hasError() const {
+        return errorState;
+    }
+};
+
+
+
+
+
+
+#include <iostream>
+
+class Rectangle {
+private:
+    double width;
+    double height;
+
+public:
+    // Конструктор без параметров
+    Rectangle() : width(0.0), height(0.0) {}
+
+    // Конструктор с параметрами
+    Rectangle(double w, double h) : width(w), height(h) {}
+
+    // Функция установки ширины
+    void setWidth(double w) {
+        if (w > 0) {
+            width = w;
+        } else {
+            std::cout << "Ошибка: Ширина должна быть положительным числом" << std::endl;
+        }
+    }
+
+    // Функция установки высоты
+    void setHeight(double h) {
+        if (h > 0) {
+            height = h;
+        } else {
+            std::cout << "Ошибка: Высота должна быть положительным числом" << std::endl;
+        }
+    }
+
+    // Функция получения значения ширины
+    double getWidth() const {
+        return width;
+    }
+
+    // Функция получениz значения высоты
+    double getHeight() const {
+        return height;
+    }
+
+    // Функция вычисления площади
+    double getArea() const {
+        return width * height;
+    }
+
+    // Функция вычисления периметра
+    double getPerimeter() const {
+        return 2 * (width + height);
+    }
+
+    // Функция печати
+    void print() const {
+        std::cout << "Ширина: " << width << ", Высота: " << height << std::endl;
+    }
+};
+
+int main() {
+    Rectangle rect(3.0, 4.0);
+    rect.print();
+    std::cout << "Площадь: " << rect.getArea() << std::endl;
+    std::cout << "Периметр: " << rect.getPerimeter() << std::endl;
+
+    rect.setWidth(-5.0); // Выведет сообщение об ошибке
+    rect.setHeight(10.0);
+    rect.print();
+
+    return 0;
+}
